@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sih/modal/Admin.dart';
+import 'package:sih/providers/AdminProvider.dart';
 import 'package:sih/providers/AppManagerProvider.dart';
 import 'package:sih/providers/TeacherProvider.dart';
 import 'package:sih/providers/studentProvider.dart';
+import 'package:sih/screens/admin/dashboard.dart';
+import 'package:sih/screens/admin/manage_classes.dart';
+import 'package:sih/screens/admin/manage_subjects.dart';
 import 'package:sih/screens/app_manager/dashboard.dart';
+import 'package:sih/screens/app_manager/edit_details.dart';
 //import 'package:sih/screens/app_manager/edit_details.dart';
 import 'package:sih/screens/employee/Tabs.dart';
 import 'package:sih/screens/employee/attendence.dart';
@@ -11,6 +17,7 @@ import 'package:sih/screens/employee/circular.dart';
 import 'package:sih/screens/employee/dashboard.dart';
 import 'package:sih/screens/employee/homework.dart';
 import 'package:sih/screens/employee/learning_resource.dart';
+import 'package:sih/screens/employee/manage_students.dart';
 import 'download_provider.dart';
 import 'package:sih/screens/forgot_password.dart';
 import 'package:sih/screens/login.dart';
@@ -49,6 +56,10 @@ class MyApp extends StatelessWidget {
           create: (context) => TeacherProvider(),
 
         ),
+        ChangeNotifierProvider(
+          create: (context) => AdminProvider(),
+
+        ),
       ],
       child: MaterialApp(
         title: 'Sih',
@@ -73,7 +84,13 @@ class MyApp extends StatelessWidget {
           MarkAttendence.routeName: (context )=> MarkAttendence(),
           UploadLearningResources.routeName: (context)=> UploadLearningResources(),
           AppManagerDashboard.routeName : (context) => AppManagerDashboard(),
-
+          AdminDashboard.routeName : (context) => AdminDashboard(),
+          ManageStudents.routeName: (context) => ManageStudents(),
+          AppManagerTabs.routeName : (context) => AppManagerTabs(),
+          AppManagerEditDetails.routeName : (context) => AppManagerEditDetails(),
+          AdminTabs.routeName : (context) => AdminTabs(),
+          ManageClasses.routeName : (context) => ManageClasses(),
+          ManageSubjects.routeName : (context) => ManageSubjects(),
         },
       ),
     );

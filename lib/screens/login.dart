@@ -1,6 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:sih/modal/request.dart';
+import 'package:sih/providers/studentProvider.dart';
+import 'package:sih/screens/admin/dashboard.dart';
 import 'package:sih/screens/app_manager/dashboard.dart';
 import 'package:sih/screens/employee/Tabs.dart';
 import 'package:sih/screens/employee/dashboard.dart';
@@ -8,6 +11,8 @@ import 'package:sih/screens/forgot_password.dart';
 import 'package:sih/screens/student/Tabs.dart';
 import 'package:sih/screens/student/dashboard.dart';
 import 'package:sih/services/apiService.dart';
+
+import '../modal/Student.dart';
 
 class Login extends StatefulWidget {
   //const SelectRole({Key? key}) : super(key: key);
@@ -20,6 +25,7 @@ class Login extends StatefulWidget {
 enum roles { Select_Role, AppManager, AppAdmin, Teacher, Student }
 
 class _LoginState extends State<Login> {
+  final GlobalKey<ScaffoldState> _scaffoldkey = new GlobalKey();
   final GlobalKey<FormState> _formKey = GlobalKey();
   var isloading = false;
   final useridcontroller = TextEditingController();
@@ -42,46 +48,53 @@ class _LoginState extends State<Login> {
     });
     int roleindex = role.indexOf(roleName);
     model = LoginRequest(
-        userId: useridcontroller.text,
+        username: useridcontroller.text,
         password: passcontroller.text,
         userRole: roleindex);
+
     if (roleindex == 0) {
-      //select a role
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please Select User Role'))
+      );
     }
-    print(roleindex);
-    print(roleName);
+    switch(roleindex) {
+      case 1:
+        Navigator.pushReplacementNamed(context, AppManagerTabs.routeName);
+        break;
+      case 2:
+        Navigator.pushReplacementNamed(context, AdminTabs.routeName);
+        break;
+      case 3:
+        Navigator.pushReplacementNamed(context, TeacherTabs.routeName);
+        break;
+      case 4:
+        Provider.of<StudentProvider>(context,listen: false).initialiseloggedInStudent(Student(admNo: useridcontroller.text, name: "Student Name", schoolId: "SCH4297", fatherName: "Father Name", kakshaId: "k1132"));
+        Navigator.pushReplacementNamed(context, Tabs.routeName);
+        break;
+    }
     /*ApiService.login(context, model!).then((value) {
-      switch(role){
+      switch(roleindex){
         case 1:
-          Navigator.pushReplacementNamed(context, AppManagerDashboard.routeName);
+          Navigator.pushReplacementNamed(context, AppManagerTabs.routeName);
           break;
         case 2:
-          //Navigator.pushReplacementNamed(context, AppManagerDashboard.routeName);
+          Navigator.pushReplacementNamed(context, AdminTabs.routeName);
           break;
         case 3:
-          Navigator.pushReplacementNamed(context, TeacherDashboard.routeName);
+          Navigator.pushReplacementNamed(context, TeacherTabs.routeName);
           break;
         case 4:
-          Navigator.pushReplacementNamed(context, StudentDashboard.routeName);
+          Navigator.pushReplacementNamed(context, Tabs.routeName);
           break;
 
       }
-    }).catchError((onError){});*/
-    switch (roleindex) {
-      case 1:
-        Navigator.pushReplacementNamed(context, AppManagerDashboard.routeName);
-        break;
-      case 2:
-        //Navigator.pushReplacementNamed(context, AppManagerDashboard.routeName);
-        print('abc');
-        break;
-      case 3:
-        Navigator.pushReplacementNamed(context, TeacherDashboard.routeName);
-        break;
-      case 4:
-        Navigator.pushReplacementNamed(context, StudentDashboard.routeName);
-        break;
-    }
+    }).catchError((onError){
+      print(onError);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please try again'))
+      );
+    });*/
+
     setState(() {
       isloading = false;
     });
@@ -97,6 +110,7 @@ class _LoginState extends State<Login> {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
     return Scaffold(
+      key: _scaffoldkey,
         body: Stack(
       children: <Widget>[
         Container(
@@ -156,17 +170,17 @@ class _LoginState extends State<Login> {
                             ),
                             TextFormField(
                               decoration: InputDecoration(
-                                labelText: 'Mobile Number',
+                                labelText: 'UserId',
                                 icon: Icon(Icons.phone_android),
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(16),
                                     borderSide: BorderSide()),
                               ),
-                              keyboardType: TextInputType.phone,
+                              keyboardType: TextInputType.text,
                               controller: useridcontroller,
                               validator: (value) {
-                                if (value?.length != 10) {
-                                  return 'Enter 10 digit Mobile Number';
+                                if (value!.isEmpty) {
+                                  return 'Please enter UserId';
                                 }
                               },
                               onSaved: (value) {
@@ -330,3 +344,4 @@ class _LoginState extends State<Login> {
     ));
   }
 }
+//snackbar

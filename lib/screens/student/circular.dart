@@ -25,6 +25,8 @@ class _CircularState extends State<Circular> {
   var isloading =true;
   @override
   void initState() {
+    //TODO api call to initialise circulars
+    fileurls=Provider.of<StudentProvider>(context,listen: false).circularFiles;
     fileurls.forEach((element) {
       filenames.add(element.substring(element.lastIndexOf('/')+1));
     });
@@ -59,7 +61,8 @@ class _CircularState extends State<Circular> {
 
   @override
   Widget build(BuildContext context) {
-    final loggedInStudent = Provider.of<StudentProvider>(context).loggedInStudentUser;
+    fileurls = Provider.of<StudentProvider>(context).circularFiles;
+
     var fileDownloaderProvider =
     Provider.of<FileDownloaderProvider>(context, listen: false);
     return Scaffold(

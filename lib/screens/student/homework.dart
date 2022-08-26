@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sih/helpers/Homework.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../../providers/studentProvider.dart';
@@ -21,8 +22,8 @@ class _StudentHomeworkState extends State<StudentHomework> {
   DateTime _selectedDay= DateTime.now();
 
 
-  List hw=['1','2','3','4','5'];//contains object of type hw of _selectedDay//TEXT SELECTABLE??
-  Widget hwCard(BuildContext context,int i/*todo object type*/){
+  List<Homework> hw=[];//contains object of type hw of _selectedDay//TEXT SELECTABLE??
+  Widget hwCard(BuildContext context,Homework h/*todo object type*/){
     return Card(margin: EdgeInsets.symmetric(vertical:  MediaQuery.of(context).size.height*0.01,horizontal: MediaQuery.of(context).size.width*0.02),
       child: Container(
 
@@ -36,18 +37,32 @@ class _StudentHomeworkState extends State<StudentHomework> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Row(mainAxisAlignment: MainAxisAlignment.center,children: [
-              Text('Teacher\'s Name - ',style: TextStyle(color: Colors.white,fontSize: 18,),),Text ('Subject Name',style: TextStyle(color: Colors.white,fontSize: 18,fontWeight: FontWeight.bold),),Text('(date)',style: TextStyle(color: Colors.white,fontSize: 18,),),
+              Text('${h.teacherName} - ',style: TextStyle(color: Colors.white,fontSize: 18,),),Text (h.subjectName,style: TextStyle(color: Colors.white,fontSize: 18,fontWeight: FontWeight.bold),),
+            ],),
+            Row(mainAxisAlignment: MainAxisAlignment.center,children: [
+              Text(
+            '(${h.homeworkDate})',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                ),
+              ),
             ],),
             Divider(color: Colors.white,thickness: 2,endIndent: MediaQuery.of(context).size.width*0.02,indent: MediaQuery.of(context).size.width*0.02,),
-            Text('Learn Short Q&A of Chapter 2',style: TextStyle(color: Colors.white,fontSize: 18,),),
+            Text(h.homeworkContent,style: TextStyle(color: Colors.white,fontSize: 18,),),
 
           ],
         ),
       ),);
   }
+  _fetchHomeworkSelectedDate(){
+    //TODO api call to fetch and set for selected date
+  }
+  //teacher name of given teacher id
+
   @override
   Widget build(BuildContext context) {
-    final loggedInStudent = Provider.of<StudentProvider>(context).loggedInStudentUser;//to fetch userid,school id
+    final loggedInStudentHomework = Provider.of<StudentProvider>(context).homeworksofUser;//to fetch userid,school id
     return Scaffold(
       appBar: AppBar(
         title: const Text('Homework',style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),),
@@ -81,6 +96,8 @@ class _StudentHomeworkState extends State<StudentHomework> {
 
                       _focusedDay = focusedDay;
                     });
+                    _fetchHomeworkSelectedDate();
+                    //loading spinner??
                   }
 
                 },
@@ -107,10 +124,20 @@ class _StudentHomeworkState extends State<StudentHomework> {
                 Text('Homework for ',style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),),
                 Text(_selectedDay.toLocal().toString(),style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),),
               ],),
+              Row(mainAxisAlignment: MainAxisAlignment.center,children: [
+                Text(
+                  _selectedDay.toLocal().toString(),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                  ),
+                ),
+              ],),
               SizedBox(height: 10,),
               //listview return card scroll problem
               //TODO if list for that day is empty so no homework and a mark on table also
-              Column(children: hw.map((e) => hwCard(context,1))
+              loggedInStudentHomework.isEmpty?Text('No Homework '):
+              Column(children: loggedInStudentHomework.map((e) => hwCard(context,e))
                   .toList(),),
             ],
           ),

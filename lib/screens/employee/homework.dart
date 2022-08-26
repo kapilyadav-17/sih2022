@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:sih/helpers/Kaksha.dart';
+import 'package:sih/providers/AdminProvider.dart';
+
+import '../../providers/TeacherProvider.dart';
+import '../../services/apiService.dart';
 
 class UploadHomework extends StatefulWidget {
   const UploadHomework({Key? key}) : super(key: key);
@@ -8,6 +14,7 @@ class UploadHomework extends StatefulWidget {
 }
 
 class _UploadHomeworkState extends State<UploadHomework> {
+  List<Kaksha> allKakshaOfSchool = [];
   final GlobalKey<FormState> _formKey = GlobalKey();
   final hwcontroller = TextEditingController();
   Future<void> save() async {
@@ -16,10 +23,9 @@ class _UploadHomeworkState extends State<UploadHomework> {
     }
     _formKey.currentState!.save();
 
-
   }
   DateTime selectedDate = DateTime.now();
-
+  String schoolId='';
   _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -32,34 +38,46 @@ class _UploadHomeworkState extends State<UploadHomework> {
         selectedDate = picked;
       });
   }
-  String selectedkaksha = '';
-  Map<String,List<String>> kaksha = {'I':['English','Hindi'], 'II':['English','Hindi','Maths'], 'III':['English','Hindi','Maths','Evs']}; //kaksha id... or name
-  List<String> kakshaName=[];
+  String selectedkakshaName = '';
+  //Map<String,List<String>> kaksha = {'I':['English','Hindi'], 'II':['English','Hindi','Maths'], 'III':['English','Hindi','Maths','Evs']}; //kaksha id... or name
+  List<String> kakshaNames=[];
   List<String> subjects=[];
   String selectdSubject = '';
-  setsubjects(k){
-    kaksha.forEach((key, value) {
-      if(key==k){
-        subjects=value;
-      }
+  Kaksha? selectedKaksha ;
+  setsubjects( k){
+
+    selectedKaksha= allKakshaOfSchool[allKakshaOfSchool.indexWhere((element) => element.kakshaName==k)];
+    setState(() {
+      subjects = allKakshaOfSchool[allKakshaOfSchool.indexWhere((element) => element.kakshaName==k)].subjects!;
+      selectdSubject=subjects[0];
     });
-    selectdSubject=subjects[0];
+
   }
   setkakshaName(){
-    kaksha.forEach((key, value) {
-      kakshaName.add(key);
+    allKakshaOfSchool.forEach((element) {
+      kakshaNames.add(element.kakshaName);
     });
-    selectedkaksha=kakshaName[0];
+   setState(() {
+     selectedKaksha=allKakshaOfSchool[0];
+     selectedkakshaName=kakshaNames[0];
+   });
   }
   var isadding = false;
   var isSaved = false;
   @override
   void initState() {
+    //TODO api call to FetchKakshaofSchool
+    //set List<Kaksha> and then kakshaName
+    schoolId = Provider.of<TeacherProvider>(context,listen: false).loggedInTeacher.schoolId;
+    //ApiService.viewKakshaOfSchool(context, schoolId);
+    allKakshaOfSchool = Provider.of<AdminProvider>(context,listen: false).viewKaksha;
     setkakshaName();
+    //print(kakshaNames);
     super.initState();
   }
   @override
   Widget build(BuildContext context) {
+    final loggedInTeacher = Provider.of<TeacherProvider>(context).getLoggedInTeacher;
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -79,18 +97,23 @@ class _UploadHomeworkState extends State<UploadHomework> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   DropdownButton(items:
-                      kakshaName.map((e) {
-                        return DropdownMenuItem(child: Text(e),value: e,);
-                      }).toList(), onChanged: (newvalue){
-                      setsubjects( newvalue);
+                      kakshaNames.map((e) => DropdownMenuItem(child: Text(e),value: e,)).toList(), onChanged: (newvalue){
+                      print(newvalue);
+                      setsubjects( newvalue );
                       setState(() {
-                        selectedkaksha=newvalue.toString();
+                        selectedkakshaName = newvalue.toString() ;
                         if(!isadding){
                           isadding=true;
                         }
                       });
 
-                  },value: selectedkaksha),
+                  },
+                  onTap: (){
+                    //TODO api call to fetch subjects of this class id
+                    //set to subjectname and selectedsubject to [0]
+
+                  }
+                  ,value: selectedkakshaName),
                   DropdownButton(items: subjects.map((e){
                     return DropdownMenuItem(child: Text(e),value: e,);
                   }).toList(), onChanged: (newvalue){
@@ -141,14 +164,14 @@ class _UploadHomeworkState extends State<UploadHomework> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  'Teacher\'s Name - ',
+                                  '${loggedInTeacher.name} - ',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 18,
                                   ),
                                 ),
                                 Text(
-                                  'Subject Name',
+                                  selectdSubject,
                                   style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 18,

@@ -1,112 +1,40 @@
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:sih/providers/AppManagerProvider.dart';
-import 'package:sih/screens/app_manager/edit_details.dart';
-
-import '../../modal/Admin.dart';
-import '../login.dart';
-
-
-
-
-
-
-
-
-class AppManagerTabs extends StatefulWidget {
-  //const Tabs({Key? key}) : super(key: key);
-  static const routeName = '/AppManagerTabsPage';
-  @override
-  AppManagerTabsState createState() => AppManagerTabsState();
-}
-
-class AppManagerTabsState extends State<AppManagerTabs> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
-  void openDrawer() {
-    _scaffoldKey.currentState!.openEndDrawer();
-  }
-  int _selectedIndex = 0;
-
-// 8
-  List<Widget> pages = <Widget>[AppManagerDashboard()];
-
-// 9
-  void _onItemTapped(int index) {
-    if(index!=1){
-      setState(() {
-        _selectedIndex = index;
-      });
-    }
-    else{
-      openDrawer();
-
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      backgroundColor: Colors.white,
-      endDrawer: Drawer(width: MediaQuery.of(context).size.width*0.7,
-        backgroundColor: Colors.blue,
-        child: SingleChildScrollView(child:
-        ListView(shrinkWrap: true,
-            children: [
-              ListTile(title: Text('Logout',style: TextStyle(color: Colors.white),),leading: Icon(Icons.logout),
-                onTap: ()=>Navigator.pushReplacementNamed(context, Login.routeName),),
-              ListTile(title: Text('Edit Details',style: TextStyle(color: Colors.white),),leading: Icon(Icons.edit),
-                onTap: ()=>Navigator.pushNamed(context, AppManagerEditDetails.routeName),),
-            ]),),
-      ),
-      body: pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: _selectedIndex,
-
-        onTap: _onItemTapped,
-        selectedItemColor: Colors.black,
-
-        // 6
-
-        items: <BottomNavigationBarItem>[
-
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.menu),
-            label: 'More',
-          ),
-
-        ],
-      ),
-    );
-  }
-}
-
-
-
-class AppManagerDashboard extends StatefulWidget {
+import 'package:sih/helpers/Kaksha.dart';
+import 'package:sih/modal/Admin.dart';
+import 'package:sih/providers/AdminProvider.dart';
+class ManageClasses extends StatefulWidget {
   //const Dashboard({Key? key}) : super(key: key);
-  static const routeName = '/AppManagerDashboard';
+  static const routeName = '/ManageClasses';
 
   @override
-  State<AppManagerDashboard> createState() => _AppManagerDashboardState();
+  State<ManageClasses> createState() => _ManageClassesState();
 }
 
-class _AppManagerDashboardState extends State<AppManagerDashboard> {
+class _ManageClassesState extends State<ManageClasses> {
   final GlobalKey<FormState> _formKey = GlobalKey();
-  final adminidcontroller = TextEditingController();
-  final schoolidcontroller = TextEditingController();
-  final adminNamecontroller = TextEditingController();
-  final adminphonecontroller = TextEditingController();
-  final adminemailcontroller = TextEditingController();
-  final services = ['View Admins', 'Add Admin', 'Remove Admin', ];
+  final kakshaidcontroller = TextEditingController();
+  final services = ['View Kaksha', 'Add Kaksha', 'Remove Kaksha', ];
   final removeadminidcontroller = TextEditingController();
+  final kakshaNameController = TextEditingController();
+  final schoolIdController = TextEditingController();
+  final sujectNameController = TextEditingController();
+  final teacherIdController = TextEditingController();
+  //schoolIdController.text = Provider.of<AppManager>
+  List<String > subjectList = [];
+  List<String > teachersId = [];
+  addtosubjectList(String subjectName){
+    setState(() {
+      subjectList.add(subjectName);
+      sujectNameController.text = '';
+    });
+  }
+  addtoteachersIdList(String teacherId){
+    setState(() {
+      teachersId.add(teacherId);
+      teacherIdController.text = '';
+    });
+  }
   final icons = [
     Icons.view_list,
     Icons.person_add,
@@ -120,49 +48,39 @@ class _AppManagerDashboardState extends State<AppManagerDashboard> {
     Colors.greenAccent,
 
   ];
-  List<Admin> viewAdmins = [];
+  List<Kaksha> viewKaksha = [];
   var isViewing=false,isAdding=false,isRemoving=false;
-    submit()  {
-      if(schoolIdController.text!="" && adminidcontroller.text!="" && adminNamecontroller.text!=null && adminphonecontroller.text!=null && adminemailcontroller.text!=null){
-        Provider.of<AppManagerProvider>(context,listen: false).addAdmin(Admin(phoneNumber: adminphonecontroller.text,emailId: adminemailcontroller.text,schoolId: schoolIdController.text,adminId: adminidcontroller.text,adminName: adminNamecontroller.text));
-        schoolIdController.text="";
-        adminNamecontroller.text= "";
-        adminidcontroller.text= "";
-        adminemailcontroller.text="";
-        adminphonecontroller.text="";
-        setState(() {
-          //loading false
-          isAdding = false;
-        });
-      }
-      /*if( _formKey.currentState!.validate()==null){
-        return;
-
-      }
-      _formKey.currentState!.save();
+   submit(Kaksha newKaksha) async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+    _formKey.currentState!.save();
     //api call to save data
-     //addAdmin(newAdmin);
+    await addKaksha(newKaksha);
+    subjectList=[];
+    teachersId = [];
+    kakshaidcontroller.text="";
+    kakshaNameController.text="";
+
     setState(() {
       //loading false
       isAdding = false;
-    });*/
+    });
   }
-  TextEditingController schoolIdController = TextEditingController();
-
-  loadAdminList() {
-    viewAdmins = Provider.of<AppManagerProvider>(context,listen: false).adminList;
+  Future<void> loadKakshaList() async{
+    viewKaksha = Provider.of<AdminProvider>(context,listen: false).viewKaksha;
   }
-  addAdmin(Admin newAdmin) {
-    Provider.of<AppManagerProvider>(context,listen: false).addAdmin(newAdmin);
+  Future<void> addKaksha(Kaksha newKaksha) async{
+    Provider.of<AdminProvider>(context,listen: false).addKaksha(newKaksha);
   }
-   removeAdmin( String adminId) {
-    Provider.of<AppManagerProvider>(context,listen: false).removeAdmin(adminId);
+  Future<void > removeKaksha( String kakshaId) async{
+    Provider.of<AdminProvider>(context,listen: false).removeKaksha(kakshaId);
     removeadminidcontroller.text="";
   }
-  var loggedInAppManager;
+
   @override
   void initState() {
-     loggedInAppManager = Provider.of<AppManagerProvider>(context,listen: false).loggedInAppManager;
+
     super.initState();
   }
   Widget cnt(BuildContext context, int index) {
@@ -172,8 +90,8 @@ class _AppManagerDashboardState extends State<AppManagerDashboard> {
       onTap: (){
         switch (index){
           case 0:
-            //api call to get list of admins
-            loadAdminList();
+          //api call to get list of admins
+            loadKakshaList();
             setState(() {
               isViewing=true;
               isAdding=isRemoving=false;
@@ -243,10 +161,9 @@ class _AppManagerDashboardState extends State<AppManagerDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    loggedInAppManager = Provider.of<AppManagerProvider>(context).loggedInAppManager;
+    final loggedInAdmin = Provider.of<AdminProvider>(context).loggedInAdmin;
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
-    schoolIdController.text = Provider.of<AppManagerProvider>(context).loggedInAppManager.schoolId;
     return Scaffold(
       appBar: AppBar(
         leading: Icon(
@@ -254,7 +171,7 @@ class _AppManagerDashboardState extends State<AppManagerDashboard> {
           color: Colors.black,
         ),
         title: Text(
-          loggedInAppManager.schoolName,
+          loggedInAdmin.schoolId,
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.white,
@@ -285,7 +202,7 @@ class _AppManagerDashboardState extends State<AppManagerDashboard> {
                     alignment: Alignment.center,
                     color: Colors.indigo,
                     child: Text(
-                      loggedInAppManager.schoolId,
+                      loggedInAdmin.adminName,
                       style: TextStyle(color: Colors.white, fontSize: 18),
                     ),
                   ),
@@ -317,11 +234,11 @@ class _AppManagerDashboardState extends State<AppManagerDashboard> {
                   isViewing?Container(
                     color: Colors.white,
                     child: ListView.builder(
-                        shrinkWrap: true
-                        ,itemBuilder: (context, index) {
+                      shrinkWrap: true
+                      ,itemBuilder: (context, index) {
 
-                      return ListTile(leading: Text('${index+1}.',style: TextStyle(fontWeight: FontWeight.bold),),title: Text(viewAdmins[index].adminName),);
-                    },itemCount: viewAdmins.length,),
+                      return ListTile(leading: Text('${index+1}.',style: TextStyle(fontWeight: FontWeight.bold),),title: Text(viewKaksha[index].kakshaName),);
+                    },itemCount: viewKaksha.length,),
                   )
                       :isAdding?Form(
                     key: _formKey,
@@ -329,7 +246,7 @@ class _AppManagerDashboardState extends State<AppManagerDashboard> {
                       children: [
                         TextFormField(
                           decoration: InputDecoration(
-                            labelText: 'SchoolId',
+                            labelText: 'School Id',
 
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
@@ -351,13 +268,13 @@ class _AppManagerDashboardState extends State<AppManagerDashboard> {
                         ),
                         TextFormField(
                           decoration: InputDecoration(
-                            labelText: 'NewAdmin Id',
+                            labelText: 'ClassId',
 
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
                                 borderSide: BorderSide()),
                           ),
-                          controller: adminidcontroller,
+                          controller: kakshaidcontroller,
                           keyboardType: TextInputType.text,
                           validator: (value) {
                             if (value!.isEmpty) {
@@ -373,13 +290,13 @@ class _AppManagerDashboardState extends State<AppManagerDashboard> {
                         ),
                         TextFormField(
                           decoration: InputDecoration(
-                            labelText: 'Admin Name',
+                            labelText: 'Class Name',
 
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
                                 borderSide: BorderSide()),
                           ),
-                          controller: adminNamecontroller,
+                          controller: kakshaNameController,
                           keyboardType: TextInputType.text,
                           validator: (value) {
                             if (value!.isEmpty) {
@@ -390,55 +307,102 @@ class _AppManagerDashboardState extends State<AppManagerDashboard> {
 
                           },
                         ),
+
                         SizedBox(
                           height: height * 0.02,
                         ),
-                        TextFormField(
-                          decoration: InputDecoration(
-                            labelText: 'Admin Phone Number',
-
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide()),
-                          ),
-                          controller: adminphonecontroller,
-                          keyboardType: TextInputType.phone,
-                          validator: (value) {
-                            if (value?.length != 10) {
-                              return 'Enter 10 digit Mobile Number';
-                            }
-                          },
-                          onSaved: (value) {
-
-                          },
+                        Wrap(
+                          spacing: 0,
+                          runSpacing: 0,
+                          children: subjectList.map((e) =>Container(
+                            child: Chip(
+                              label: Text(e),
+                              elevation: 4,
+                              shadowColor: Colors.grey[50],
+                              padding: EdgeInsets.all(4),
+                            ),
+                          ) ).toList(),
                         ),
                         SizedBox(
                           height: height * 0.02,
                         ),
-                        TextFormField(
-                          decoration: InputDecoration(
-                            labelText: 'Admin Email Id',
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                decoration: InputDecoration(
+                                  labelText: 'Subject Name',
 
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide()),
-                          ),
-                          controller: adminemailcontroller,
-                          keyboardType: TextInputType.text,
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Can\'t be empty';
-                            }
-                          },
-                          onSaved: (value) {
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                      borderSide: BorderSide()),
+                                ),
+                                controller: sujectNameController,
+                                keyboardType: TextInputType.text,
 
-                          },
+                                onSaved: (value) {
+
+                                },
+                              ),
+                            ),
+                            SizedBox(width: 5,),
+                            ElevatedButton(onPressed: (){
+                              addtosubjectList(sujectNameController.text);
+
+                            },child: Text('Add'),),
+                          ],
+                        ),
+                        SizedBox(
+                          height: height * 0.02,
+                        ),
+                        Wrap(
+                          spacing: 0,
+                          runSpacing: 0,
+                          children: teachersId.map((e) =>Container(
+                            child: Chip(
+                              label: Text(e),
+                              elevation: 4,
+                              shadowColor: Colors.grey[50],
+                              padding: EdgeInsets.all(4),
+                            ),
+                          ) ).toList(),
+                        ),
+                        SizedBox(
+                          height: height * 0.02,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Expanded(child : TextFormField(
+                              decoration: InputDecoration(
+                                labelText: 'Teacher Id',
+
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: BorderSide()),
+                              ),
+                              controller: teacherIdController,
+                              keyboardType: TextInputType.text,
+
+                              onSaved: (value) {
+
+                              },
+                            ),),
+                            SizedBox(width: 5,),
+                            ElevatedButton(onPressed: (){
+                              addtoteachersIdList(teacherIdController.text);
+
+                            },child: Text('Add'),),
+                          ],
                         ),
                         SizedBox(
                           height: height * 0.02,
                         ),
                         ElevatedButton(
-                          onPressed: submit,
+                          onPressed: (){
+                              submit(Kaksha(kakshaName: kakshaNameController.text, kakshaId: kakshaidcontroller.text, schoolId: schoolIdController.text,subjects: subjectList,teachersId: teachersId));
+                          },
                           child: Text(
                             'Save',
                             style: TextStyle(fontSize: 20),
@@ -455,11 +419,11 @@ class _AppManagerDashboardState extends State<AppManagerDashboard> {
                       ],
                     ),
                   )
-                        :isRemoving?Column(
+                      :isRemoving?Column(
                     children: [
                       TextFormField(
                         decoration: InputDecoration(
-                          labelText: 'Admin Id',
+                          labelText: 'Kaksha Id',
 
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(16),
@@ -476,9 +440,11 @@ class _AppManagerDashboardState extends State<AppManagerDashboard> {
 
                         },
                       ),
-                      SizedBox(height: 5,),
                       ElevatedButton(
-                        onPressed: (){removeAdmin(removeadminidcontroller.text);},//api call
+                        onPressed: (){removeKaksha(removeadminidcontroller.text);
+                        setState(() {
+                          isRemoving = false;
+                        });},//api call
                         child: Text(
                           'Remove',
                           style: TextStyle(fontSize: 20),
@@ -495,7 +461,7 @@ class _AppManagerDashboardState extends State<AppManagerDashboard> {
                     ],
                   )
 
-                          :Text('')
+                      :Text('')
                 ],
               ),
             ),
@@ -505,21 +471,3 @@ class _AppManagerDashboardState extends State<AppManagerDashboard> {
     );
   }
 }
-
-/*
-GridView.builder(shrinkWrap: true,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 15,
-                              mainAxisSpacing: 10,
-                              childAspectRatio: 1 ),
-                      itemBuilder: (ctx, index) {
-
-                        return Container(child:Text(index.toString()));
-                      },
-                      padding: EdgeInsets.all(10),
-                      itemCount: services.length,
-                    ),
-*/
-//or use wrap with row

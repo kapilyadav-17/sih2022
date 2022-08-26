@@ -4,6 +4,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:sih/helpers/qr.dart';
+import 'package:sih/providers/studentProvider.dart';
 import 'dart:io' show Platform;
 import 'package:url_launcher/link.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -18,11 +21,11 @@ class Qr extends StatefulWidget {
 
 class _QrState extends State<Qr> {
   ScanResult? scanResult;
-
+  List<QrCode> savedQrCodes = [];
   final _flashOnController = TextEditingController(text: 'Flash on');
   final _flashOffController = TextEditingController(text: 'Flash off');
   final _cancelController = TextEditingController(text: 'Cancel');
-
+  String userId ='';
   var _aspectTolerance = 0.00;
   var _numberOfCameras = 0;
   var _selectedCamera = -1;
@@ -35,7 +38,8 @@ class _QrState extends State<Qr> {
   List<BarcodeFormat> selectedFormats = [..._possibleFormats];
 
   @override
-  void initState() {
+  void initState() {savedQrCodes = Provider.of<StudentProvider>(context,listen: false).savedQrCodes;
+    userId=Provider.of<StudentProvider>(context,listen: false).loggedInStudent.admNo;
     super.initState();
 
     Future.delayed(Duration.zero, () async {
@@ -62,6 +66,7 @@ class _QrState extends State<Qr> {
   }
   @override
   Widget build(BuildContext context) {
+    savedQrCodes = Provider.of<StudentProvider>(context).savedQrCodes;
     final scanResult = this.scanResult;
     return Scaffold(
       appBar: AppBar(
@@ -81,7 +86,26 @@ class _QrState extends State<Qr> {
           onPressed: _scan,
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      body:scanResult==null?Center(child: Text(''),):
+      body:scanResult==null?Column(
+        children: [
+          ListView.builder(shrinkWrap: true,itemBuilder: (context, index) {
+            return Container(width: MediaQuery.of(context).size.width*0.7,
+              child: Column(
+                children: [
+                  ListTile(onTap: (){
+                    setState(() {
+                      _launched = _launchInBrowser(Uri.parse(savedQrCodes[index].qrUrl));
+                    });
+                  },title: Text(savedQrCodes[index].qrUrl),subtitle: Text(savedQrCodes[index].qrId),
+                    trailing: IconButton(icon: Icon(Icons.delete,color: Colors.red,),onPressed: (){
+                      Provider.of<StudentProvider>(context,listen: false).removeQr(savedQrCodes[index].qrId);
+                    },),),
+                  Divider(height: 2,),
+                ],
+              ));
+          },itemCount: savedQrCodes.length,),
+        ],
+      ):
           !scanResult.rawContent.toString().contains('http')?Center(child: Text('error occured'),):
       Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -108,6 +132,7 @@ class _QrState extends State<Qr> {
                       ),
                       TextButton(
                         onPressed: () {
+                          Provider.of<StudentProvider>(context,listen: false).addQr(QrCode(createdAt: DateTime.now(),qrId: DateTime.now().toString(),qrUrl: scanResult.rawContent.toString(),userId: userId ));
                           setState(() {
                             _launched = _launchInBrowser(Uri.parse(scanResult.rawContent.toString()));
                           });
@@ -122,6 +147,23 @@ class _QrState extends State<Qr> {
           }, child: Text('Open in browser')),
 
           FutureBuilder<void>(future: _launched, builder: _launchStatus),
+
+          ListView.builder(shrinkWrap: true,itemBuilder: (context, index) {
+              return Container(width: MediaQuery.of(context).size.width*0.7,
+              child: Column(
+                children: [
+                  ListTile(onTap: (){
+                    setState(() {
+                      _launched = _launchInBrowser(Uri.parse(savedQrCodes[index].qrUrl));
+                    });
+                  },title: Text(savedQrCodes[index].qrUrl),subtitle: Text(savedQrCodes[index].qrId),
+                    trailing: IconButton(icon: Icon(Icons.delete,color: Colors.red,),onPressed: (){
+                      Provider.of<StudentProvider>(context,listen: false).removeQr(savedQrCodes[index].qrId);
+                    },),),
+                  Divider(height: 2,),
+                ],
+              ),);
+          },itemCount: savedQrCodes.length,),
         ],
       ),
     );

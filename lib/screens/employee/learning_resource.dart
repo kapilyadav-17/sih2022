@@ -2,6 +2,11 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../helpers/Kaksha.dart';
+import '../../providers/AdminProvider.dart';
+import '../../providers/TeacherProvider.dart';
 
 class UploadLearningResources extends StatefulWidget {
   const UploadLearningResources({Key? key}) : super(key: key);
@@ -11,12 +16,25 @@ class UploadLearningResources extends StatefulWidget {
 }
 
 class _UploadLearningResourcesState extends State<UploadLearningResources> {
-  String selectedKaksha = 'I';
-  List<String> kaksha = ['I', 'II', 'III', 'IV', 'V']; //kaksha id... or name
+  Kaksha? selectedKaksha;
+  String selectedkakshaName = '';
+  List<String> kakshaNames=[];
+  List<Kaksha> kaksha = [];  //kaksha id... or name
   DateTime uploadDate = DateTime.now();
   File? file;
   var ispicked=false;
   var isuploaded=false;
+  List<Kaksha> allkakshaOfSchool=[];
+  setkakshaName(){
+    allkakshaOfSchool.forEach((element) {
+      kakshaNames.add(element.kakshaName);
+    });
+    setState(() {
+      selectedKaksha=allkakshaOfSchool[0];
+      selectedkakshaName =kakshaNames[0];
+    });
+
+  }
   _pickFile() async{
     FilePickerResult? result = await FilePicker.platform.pickFiles();
 
@@ -29,6 +47,18 @@ class _UploadLearningResourcesState extends State<UploadLearningResources> {
       // User canceled the picker
       print('cannot pick file');
     }
+  }
+
+  @override
+  void initState() {
+    final loggedInTeacher = Provider.of<TeacherProvider>(context,listen:false).getLoggedInTeacher;
+    // TODO: api call to fetch list of kaksha of this schoolid
+    //assign it to kaksha
+    //assign selectedKaksha to kaksha[0].kakshaName
+    allkakshaOfSchool = Provider.of<AdminProvider>(context,listen: false).viewKaksha;
+    selectedKaksha= allkakshaOfSchool[0];
+    setkakshaName();
+    super.initState();
   }
   @override
   Widget build(BuildContext context) {
@@ -53,11 +83,17 @@ class _UploadLearningResourcesState extends State<UploadLearningResources> {
                 children: [
                   Text('Select Class : '),
                   DropdownButton(items:
-                  kaksha.map((e) {
+                  kakshaNames.map((e) {
                     return DropdownMenuItem(child: Text(e),value: e,);
                   }).toList(), onChanged: (newvalue){
+                    setState(() {
 
-                  },value: selectedKaksha),
+                      selectedkakshaName = newvalue.toString();
+                    });
+                  },value: selectedkakshaName),
+
+
+
 
                 ],
               ),
