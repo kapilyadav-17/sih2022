@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:sih/helpers/Kaksha.dart';
+import 'package:sih/providers/TeacherProvider.dart';
 import 'package:table_calendar/table_calendar.dart';
+
+import '../../modal/Student.dart';
+import '../../providers/AdminProvider.dart';
 
 class MarkAttendence extends StatefulWidget {
   const MarkAttendence({Key? key}) : super(key: key);
@@ -14,14 +20,10 @@ class _MarkAttendenceState extends State<MarkAttendence> {
   DateTime _focusedDay = DateTime.now();
 
   DateTime _selectedDay = DateTime.now();
-  String selectedkaksha = 'I';
-  List<String> kaksha = ['I', 'II', 'III', 'IV', 'V']; //kaksha id... or name
-  List<String> Students = [
-    'a',
-    'b',
-    'c',
-    'd'
-  ]; //list based on id selected class//student id and name (MODAL REQUIREMENTto store data of students of a class like id name ..usme api call)
+  String selectedkakshaName = '';
+  List<String> kakshaNames = [];
+  List<Kaksha> allKakshaOfSchool = []; //kaksha id... or name
+  List<Student> Students = []; //list based on id selected class//student id and name (MODAL REQUIREMENTto store data of students of a class like id name ..usme api call)
   List<int> atndnce = [
     -1,
     1,
@@ -30,6 +32,27 @@ class _MarkAttendenceState extends State<MarkAttendence> {
   ]; //how to show three statuses..bydefault -1 if opened and saved then 0 or 1
   var loadatndnce = false;
   var isSaved = false;
+  Kaksha? selectedKaksha;
+  setlistofStudents(String kakshaId){
+
+  }
+  setkakshaName(){
+    allKakshaOfSchool.forEach((element) {
+      kakshaNames.add(element.kakshaName);
+    });
+    setState(() {
+      selectedKaksha=allKakshaOfSchool[0];
+      selectedkakshaName=kakshaNames[0];
+    });
+  }
+  @override
+  void initState() {
+    //TODO api call to FetchKakshaofSchool
+    //set List<Kaksha> and then kakshaName
+    allKakshaOfSchool = Provider.of<AdminProvider>(context,listen: false).viewKaksha;
+    setkakshaName();
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -108,24 +131,28 @@ class _MarkAttendenceState extends State<MarkAttendence> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    DropdownButton(
-                      value: selectedkaksha,
-                      items: kaksha.map((k) {
-                        return DropdownMenuItem(
-                          child: Text(k),
-                          value: k,
-                        );
-                      }).toList(),
-                      onChanged: (newValue) {
-                        setState(() {
-                          selectedkaksha = '$newValue';
-                        });
-                      },
-                    ),
+                    DropdownButton(items:
+                    kakshaNames.map((e) => DropdownMenuItem(child: Text(e),value: e,)).toList(), onChanged: (newvalue){
+
+                      setState(() {
+                        selectedkakshaName = newvalue.toString() ;
+
+                      });
+
+                    },
+                        onTap: (){
+                          //TODO api call to fetch subjects of this class id
+                          //set to subjectname and selectedsubject to [0]
+
+                        }
+                        ,value: selectedkakshaName),
                     ElevatedButton(
                         onPressed: () {
-                          //api call
+                          //TODO api call to fetch list of Students with attendance of selectedDate (all details??)or List<model  bnv>
+
                           setState(() {
+                            Students = Provider.of<TeacherProvider>(context,listen: false).studentsList;
+
                             loadatndnce = true;
                             isSaved = false;
                           });
@@ -142,7 +169,7 @@ class _MarkAttendenceState extends State<MarkAttendence> {
                           shrinkWrap: true,
                           itemBuilder: (context, index) {
                             return ListTile(
-                              title: Text(Students[index]),
+                              title: Text(Students[index].name),
                               subtitle: Text(
                                 atndnce[index] == 1
                                     ? 'Present'
@@ -173,6 +200,7 @@ class _MarkAttendenceState extends State<MarkAttendence> {
                           },
                           itemCount: Students.length,
                         ),
+
                         SizedBox(
                           height: 10,
                         ),

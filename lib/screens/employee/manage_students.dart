@@ -1,114 +1,26 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:sih/providers/AppManagerProvider.dart';
-import 'package:sih/screens/app_manager/edit_details.dart';
 
-import '../../modal/Admin.dart';
-import '../login.dart';
+import '../../modal/Student.dart';
+import '../../providers/TeacherProvider.dart';
 
 
-
-
-
-
-
-
-class AppManagerTabs extends StatefulWidget {
-  //const Tabs({Key? key}) : super(key: key);
-  static const routeName = '/AppManagerTabsPage';
-  @override
-  AppManagerTabsState createState() => AppManagerTabsState();
-}
-
-class AppManagerTabsState extends State<AppManagerTabs> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
-  void openDrawer() {
-    _scaffoldKey.currentState!.openEndDrawer();
-  }
-  int _selectedIndex = 0;
-
-// 8
-  List<Widget> pages = <Widget>[AppManagerDashboard()];
-
-// 9
-  void _onItemTapped(int index) {
-    if(index!=1){
-      setState(() {
-        _selectedIndex = index;
-      });
-    }
-    else{
-      openDrawer();
-
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      backgroundColor: Colors.white,
-      endDrawer: Drawer(width: MediaQuery.of(context).size.width*0.7,
-        backgroundColor: Colors.blue,
-        child: SingleChildScrollView(child:
-        ListView(shrinkWrap: true,
-            children: [
-              ListTile(title: Text('Logout',style: TextStyle(color: Colors.white),),leading: Icon(Icons.logout),
-                onTap: ()=>Navigator.pushReplacementNamed(context, Login.routeName),),
-              ListTile(title: Text('Edit Details',style: TextStyle(color: Colors.white),),leading: Icon(Icons.edit),
-                onTap: ()=>Navigator.pushNamed(context, AppManagerEditDetails.routeName),),
-            ]),),
-      ),
-      body: pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: _selectedIndex,
-
-        onTap: _onItemTapped,
-        selectedItemColor: Colors.black,
-
-        // 6
-
-        items: <BottomNavigationBarItem>[
-
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.menu),
-            label: 'More',
-          ),
-
-        ],
-      ),
-    );
-  }
-}
-
-
-
-class AppManagerDashboard extends StatefulWidget {
+class ManageStudents extends StatefulWidget {
   //const Dashboard({Key? key}) : super(key: key);
-  static const routeName = '/AppManagerDashboard';
+  static const routeName = '/ManageStudents';
 
   @override
-  State<AppManagerDashboard> createState() => _AppManagerDashboardState();
+  State<ManageStudents> createState() => _ManageStudentsState();
 }
 
-class _AppManagerDashboardState extends State<AppManagerDashboard> {
+class _ManageStudentsState extends State<ManageStudents> {
   final GlobalKey<FormState> _formKey = GlobalKey();
-  final adminidcontroller = TextEditingController();
-  final schoolidcontroller = TextEditingController();
-  final adminNamecontroller = TextEditingController();
-  final adminphonecontroller = TextEditingController();
-  final adminemailcontroller = TextEditingController();
-  final services = ['View Admins', 'Add Admin', 'Remove Admin', ];
-  final removeadminidcontroller = TextEditingController();
+  final studentidcontroller = TextEditingController();
+  final services = ['Add Student', 'Remove Student', ];
+
   final icons = [
-    Icons.view_list,
+
     Icons.person_add,
     Icons.person_remove,
 
@@ -117,68 +29,32 @@ class _AppManagerDashboardState extends State<AppManagerDashboard> {
   final colors = [
     Colors.amber,
     Colors.lightBlueAccent,
-    Colors.greenAccent,
+
 
   ];
-  List<Admin> viewAdmins = [];
+  List<Student> viewStudents = [];
   var isViewing=false,isAdding=false,isRemoving=false;
-    submit()  {
-      if(schoolIdController.text!="" && adminidcontroller.text!="" && adminNamecontroller.text!=null && adminphonecontroller.text!=null && adminemailcontroller.text!=null){
-        Provider.of<AppManagerProvider>(context,listen: false).addAdmin(Admin(phoneNumber: adminphonecontroller.text,emailId: adminemailcontroller.text,schoolId: schoolIdController.text,adminId: adminidcontroller.text,adminName: adminNamecontroller.text));
-        schoolIdController.text="";
-        adminNamecontroller.text= "";
-        adminidcontroller.text= "";
-        adminemailcontroller.text="";
-        adminphonecontroller.text="";
-        setState(() {
-          //loading false
-          isAdding = false;
-        });
-      }
-      /*if( _formKey.currentState!.validate()==null){
-        return;
-
-      }
-      _formKey.currentState!.save();
+  Future<void> submit() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+    _formKey.currentState!.save();
     //api call to save data
-     //addAdmin(newAdmin);
     setState(() {
       //loading false
-      isAdding = false;
-    });*/
-  }
-  TextEditingController schoolIdController = TextEditingController();
-
-  loadAdminList() {
-    viewAdmins = Provider.of<AppManagerProvider>(context,listen: false).adminList;
-  }
-  addAdmin(Admin newAdmin) {
-    Provider.of<AppManagerProvider>(context,listen: false).addAdmin(newAdmin);
-  }
-   removeAdmin( String adminId) {
-    Provider.of<AppManagerProvider>(context,listen: false).removeAdmin(adminId);
-    removeadminidcontroller.text="";
-  }
-  var loggedInAppManager;
-  @override
-  void initState() {
-     loggedInAppManager = Provider.of<AppManagerProvider>(context,listen: false).loggedInAppManager;
-    super.initState();
+      //adding change
+    });
   }
   Widget cnt(BuildContext context, int index) {
-
-
     return GestureDetector(
       onTap: (){
         switch (index){
           case 0:
-            //api call to get list of admins
-            loadAdminList();
+          //api call to get list of admins
             setState(() {
               isViewing=true;
               isAdding=isRemoving=false;
             });
-
             break;
           case 1:
 
@@ -243,10 +119,9 @@ class _AppManagerDashboardState extends State<AppManagerDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    loggedInAppManager = Provider.of<AppManagerProvider>(context).loggedInAppManager;
+    viewStudents = Provider.of<TeacherProvider>(context).studentsList;
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
-    schoolIdController.text = Provider.of<AppManagerProvider>(context).loggedInAppManager.schoolId;
     return Scaffold(
       appBar: AppBar(
         leading: Icon(
@@ -254,7 +129,7 @@ class _AppManagerDashboardState extends State<AppManagerDashboard> {
           color: Colors.black,
         ),
         title: Text(
-          loggedInAppManager.schoolName,
+          'School Name',
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.white,
@@ -285,7 +160,7 @@ class _AppManagerDashboardState extends State<AppManagerDashboard> {
                     alignment: Alignment.center,
                     color: Colors.indigo,
                     child: Text(
-                      loggedInAppManager.schoolId,
+                      'School Id',
                       style: TextStyle(color: Colors.white, fontSize: 18),
                     ),
                   ),
@@ -302,26 +177,18 @@ class _AppManagerDashboardState extends State<AppManagerDashboard> {
                   SizedBox(
                     height: 10,
                   ),
-                  Container(
-                      margin: EdgeInsets.symmetric(horizontal: width * 0.02),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          cnt(context, 2),
 
-                        ],
-                      )),
                   SizedBox(
                     height: 10,
                   ),
                   isViewing?Container(
                     color: Colors.white,
                     child: ListView.builder(
-                        shrinkWrap: true
-                        ,itemBuilder: (context, index) {
+                      shrinkWrap: true
+                      ,itemBuilder: (context, index) {
 
-                      return ListTile(leading: Text('${index+1}.',style: TextStyle(fontWeight: FontWeight.bold),),title: Text(viewAdmins[index].adminName),);
-                    },itemCount: viewAdmins.length,),
+                      return ListTile(title: Text(viewStudents[index].name),);
+                    },itemCount: viewStudents.length,),
                   )
                       :isAdding?Form(
                     key: _formKey,
@@ -329,13 +196,12 @@ class _AppManagerDashboardState extends State<AppManagerDashboard> {
                       children: [
                         TextFormField(
                           decoration: InputDecoration(
-                            labelText: 'SchoolId',
+                            labelText: 'StudentId',
 
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
                                 borderSide: BorderSide()),
                           ),
-                          controller: schoolIdController,
                           keyboardType: TextInputType.text,
                           validator: (value) {
                             if (value!.isEmpty) {
@@ -351,13 +217,12 @@ class _AppManagerDashboardState extends State<AppManagerDashboard> {
                         ),
                         TextFormField(
                           decoration: InputDecoration(
-                            labelText: 'NewAdmin Id',
+                            labelText: 'Student Name',
 
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
                                 borderSide: BorderSide()),
                           ),
-                          controller: adminidcontroller,
                           keyboardType: TextInputType.text,
                           validator: (value) {
                             if (value!.isEmpty) {
@@ -373,35 +238,12 @@ class _AppManagerDashboardState extends State<AppManagerDashboard> {
                         ),
                         TextFormField(
                           decoration: InputDecoration(
-                            labelText: 'Admin Name',
+                            labelText: 'Mobile Number',
 
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
                                 borderSide: BorderSide()),
                           ),
-                          controller: adminNamecontroller,
-                          keyboardType: TextInputType.text,
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Can\'t be empty';
-                            }
-                          },
-                          onSaved: (value) {
-
-                          },
-                        ),
-                        SizedBox(
-                          height: height * 0.02,
-                        ),
-                        TextFormField(
-                          decoration: InputDecoration(
-                            labelText: 'Admin Phone Number',
-
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide()),
-                          ),
-                          controller: adminphonecontroller,
                           keyboardType: TextInputType.phone,
                           validator: (value) {
                             if (value?.length != 10) {
@@ -417,13 +259,12 @@ class _AppManagerDashboardState extends State<AppManagerDashboard> {
                         ),
                         TextFormField(
                           decoration: InputDecoration(
-                            labelText: 'Admin Email Id',
+                            labelText: 'Class',
 
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
                                 borderSide: BorderSide()),
                           ),
-                          controller: adminemailcontroller,
                           keyboardType: TextInputType.text,
                           validator: (value) {
                             if (value!.isEmpty) {
@@ -455,7 +296,7 @@ class _AppManagerDashboardState extends State<AppManagerDashboard> {
                       ],
                     ),
                   )
-                        :isRemoving?Column(
+                      :isRemoving?Column(
                     children: [
                       TextFormField(
                         decoration: InputDecoration(
@@ -466,7 +307,6 @@ class _AppManagerDashboardState extends State<AppManagerDashboard> {
                               borderSide: BorderSide()),
                         ),
                         keyboardType: TextInputType.text,
-                        controller: removeadminidcontroller,
                         validator: (value) {
                           if (value!.isEmpty) {
                             return 'Can\'t be empty';
@@ -476,9 +316,8 @@ class _AppManagerDashboardState extends State<AppManagerDashboard> {
 
                         },
                       ),
-                      SizedBox(height: 5,),
                       ElevatedButton(
-                        onPressed: (){removeAdmin(removeadminidcontroller.text);},//api call
+                        onPressed: (){},//api call
                         child: Text(
                           'Remove',
                           style: TextStyle(fontSize: 20),
@@ -495,7 +334,7 @@ class _AppManagerDashboardState extends State<AppManagerDashboard> {
                     ],
                   )
 
-                          :Text('')
+                      :Text('')
                 ],
               ),
             ),

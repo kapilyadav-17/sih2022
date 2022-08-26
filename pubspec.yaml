@@ -47,6 +47,7 @@ dependencies:
   open_file: ^3.2.1
   intl: ^0.17.0
   file_picker: ^4.6.1
+  jwt_decoder: ^2.0.1
 
 
 

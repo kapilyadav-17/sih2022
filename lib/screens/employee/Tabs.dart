@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:sih/screens/employee/dashboard.dart';
 
+import '../login.dart';
+
 
 
 class TeacherTabs extends StatefulWidget {
@@ -46,7 +48,7 @@ class TeacherTabsState extends State<TeacherTabs> {
         ListView(shrinkWrap: true,
             children: [
               ListTile(title: Text('Logout',style: TextStyle(color: Colors.white),),leading: Icon(Icons.logout),
-                onTap: ()=>Navigator.of(context).pop(),)
+                onTap: ()=>Navigator.pushReplacementNamed(context, Login.routeName),)
             ]),),
       ),
       body: pages[_selectedIndex],

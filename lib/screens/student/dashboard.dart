@@ -6,28 +6,35 @@ import 'package:sih/screens/student/homework.dart';
 import 'package:sih/screens/student/circular.dart';
 import 'package:sih/screens/student/learning_resource.dart';
 import 'package:provider/provider.dart';
-class StudentDashboard extends StatelessWidget {
+class StudentDashboard extends StatefulWidget {
   //const Dashboard({Key? key}) : super(key: key);
   static const routeName = '/StudentDashboard';
-  final services = ['Homework', 'Circular', 'Attendance', 'Learning'];
+
+  @override
+  State<StudentDashboard> createState() => _StudentDashboardState();
+}
+
+class _StudentDashboardState extends State<StudentDashboard> {
+  final services = ['Homework', 'Circular',  'Learning'];
+
   final icons = [
     Icons.book,
     Icons.newspaper,
-    Icons.person_add_alt,
     Icons.bookmark_outlined
   ];
+
   final colors = [
     Colors.amber,
     Colors.lightBlueAccent,
-    Colors.greenAccent,
     Colors.redAccent
   ];
+
   final routes = [
     StudentHomework.routeName,
     Circular.routeName,
-    StudentAttendence.routeName,
     StudentLearningResources.routeName
   ];
+
   Widget cnt(BuildContext context, int index) {
     return GestureDetector(
       onTap: () {
@@ -74,15 +81,30 @@ class StudentDashboard extends StatelessWidget {
       ),
     );
   }
-
+  String todaysAttendance='';
+  @override
+  void initState() {
+    // TODO: api call to initialise loggedInStudent
+    //and to get status of today's attendance
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     final loggedInStudent = Provider.of<StudentProvider>(context).loggedInStudentUser;
+    if(Provider.of<StudentProvider>(context).todaysAttendance==1){
+      todaysAttendance='Present';
+    }
+    else if(Provider.of<StudentProvider>(context).todaysAttendance==0){
+      todaysAttendance='Absent';
+    }
+    else{
+      todaysAttendance='Not Marked';
+    }
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
-        leading: Icon(
+        leading: const Icon(
           Icons.school,
           color: Colors.black,
         ),
@@ -121,7 +143,7 @@ class StudentDashboard extends StatelessWidget {
                       alignment: Alignment.center,
                       color: Colors.indigo,
                       child: Text(
-                        'Student Name',
+                        loggedInStudent.name,
                         style: TextStyle(color: Colors.white, fontSize: 18),
                       ),
                     ),
@@ -155,7 +177,7 @@ class StudentDashboard extends StatelessWidget {
                                     Container(
                                       width: width * 0.3,
                                       child: Text(
-                                        '286',
+                                        loggedInStudent.admNo,
                                         style: TextStyle(
                                           color: Colors.black,
                                         ),
@@ -181,7 +203,7 @@ class StudentDashboard extends StatelessWidget {
                                     Container(
                                       width: width * 0.3,
                                       child: Text(
-                                        'Father name',
+                                        loggedInStudent.fatherName,
                                         style: TextStyle(
                                           color: Colors.black,
                                         ),
@@ -204,7 +226,7 @@ class StudentDashboard extends StatelessWidget {
                                     Container(
                                       width: width * 0.3,
                                       child: Text(
-                                        'VII - A',
+                                        loggedInStudent.kakshaId,
                                         style: TextStyle(
                                           color: Colors.black,
                                         ),
@@ -230,7 +252,7 @@ class StudentDashboard extends StatelessWidget {
                                     Container(
                                       width: width * 0.3,
                                       child: Text(
-                                        '1234321234',
+                                        loggedInStudent.phoneNumber,
                                         style: TextStyle(
                                           color: Colors.black,
                                         ),
@@ -256,7 +278,33 @@ class StudentDashboard extends StatelessWidget {
                                     Container(
                                       width: width * 0.3,
                                       child: Text(
-                                        'name@gmail.com',
+                                        loggedInStudent.emailId,
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                                SizedBox(
+                                  height: 5,
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        'Today\'s Att.',
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                    Container(
+                                      width: width * 0.3,
+                                      child: Text(
+                                        todaysAttendance,
                                         style: TextStyle(
                                           color: Colors.black,
                                         ),
@@ -301,7 +349,7 @@ class StudentDashboard extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             cnt(context, 2),
-                            cnt(context, 3),
+
                           ],
                         )),
                     SizedBox(

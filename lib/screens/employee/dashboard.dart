@@ -1,32 +1,49 @@
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:sih/screens/employee/attendence.dart';
 import 'package:sih/screens/employee/homework.dart';
 import 'package:sih/screens/employee/circular.dart';
 import 'package:sih/screens/employee/learning_resource.dart';
+import 'package:sih/screens/employee/manage_students.dart';
 
-class TeacherDashboard extends StatelessWidget {
+import '../../providers/TeacherProvider.dart';
+
+class TeacherDashboard extends StatefulWidget {
   //const Dashboard({Key? key}) : super(key: key);
   static const routeName = '/TeacherDashboard';
-  final services = ['Add Homework', 'Circular', 'Mark Attendance', 'Upload Learning'];
+
+  @override
+  State<TeacherDashboard> createState() => _TeacherDashboardState();
+}
+
+class _TeacherDashboardState extends State<TeacherDashboard> {
+  final services = ['Add Homework', 'Circular', 'Mark Attendance', 'Upload Learning','Manage Students'];
+
   final icons = [
     Icons.book,
     Icons.newspaper,
     Icons.person_add_alt,
-    Icons.bookmark_outlined
+    Icons.bookmark_outlined,
+    Icons.manage_accounts,
   ];
+
   final colors = [
     Colors.amber,
     Colors.lightBlueAccent,
     Colors.greenAccent,
-    Colors.redAccent
+    Colors.redAccent,
+    Colors.brown
   ];
+
   final routes = [
     UploadHomework.routeName,
     UploadCircular.routeName,
     MarkAttendence.routeName,
-    UploadLearningResources.routeName
+    UploadLearningResources.routeName,
+    ManageStudents.routeName,
   ];
+
   Widget cnt(BuildContext context, int index) {
     return GestureDetector(
       onTap: () {
@@ -80,7 +97,13 @@ class TeacherDashboard extends StatelessWidget {
   }
 
   @override
+  void initState() {
+    // TODO: api call to fetch and set teacher data
+    super.initState();
+  }
+  @override
   Widget build(BuildContext context) {
+    final loggedInTeacher = Provider.of<TeacherProvider>(context).getLoggedInTeacher;
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
     return Scaffold(
@@ -124,7 +147,7 @@ class TeacherDashboard extends StatelessWidget {
                       alignment: Alignment.center,
                       color: Colors.indigo,
                       child: Text(
-                        'Employee Name',
+                        loggedInTeacher.name,
                         style: TextStyle(color: Colors.white, fontSize: 18),
                       ),
                     ),
@@ -158,7 +181,7 @@ class TeacherDashboard extends StatelessWidget {
                                     Container(
                                       width: width * 0.3,
                                       child: Text(
-                                        '286',
+                                        loggedInTeacher.empNo,
                                         style: TextStyle(
                                           color: Colors.black,
                                         ),
@@ -184,7 +207,7 @@ class TeacherDashboard extends StatelessWidget {
                                     Container(
                                       width: width * 0.3,
                                       child: Text(
-                                        'Father name',
+                                        loggedInTeacher.fatherName,
                                         style: TextStyle(
                                           color: Colors.black,
                                         ),
@@ -207,7 +230,7 @@ class TeacherDashboard extends StatelessWidget {
                                     Container(
                                       width: width * 0.3,
                                       child: Text(
-                                        'Teaching Staff',
+                                        loggedInTeacher.department,
                                         style: TextStyle(
                                           color: Colors.black,
                                         ),
@@ -233,7 +256,7 @@ class TeacherDashboard extends StatelessWidget {
                                     Container(
                                       width: width * 0.3,
                                       child: Text(
-                                        '1234321234',
+                                        loggedInTeacher.phoneNumber,
                                         style: TextStyle(
                                           color: Colors.black,
                                         ),
@@ -259,7 +282,7 @@ class TeacherDashboard extends StatelessWidget {
                                     Container(
                                       width: width * 0.3,
                                       child: Text(
-                                        'name@gmail.com',
+                                        loggedInTeacher.emailId,
                                         style: TextStyle(
                                           color: Colors.black,
                                         ),

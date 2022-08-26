@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:sih/modal/Playlist.dart';
+
 class Student{
   late final String admNo;
   late String name;
@@ -8,7 +10,8 @@ class Student{
   late String emailId;
   late String fatherName;
   late String schoolId;
-  Student({required this.admNo,required this.name,required this.schoolId,required this.fatherName,required this.kakshaId,this.emailId='',this.phoneNumber=''});
+  late List<Playlist>? myqrplaylist;
+  Student({this.myqrplaylist=null,required this.admNo,required this.name,required this.schoolId,required this.fatherName,required this.kakshaId,this.emailId='',this.phoneNumber=''});
   Student.fromJson(Map<String, dynamic> json) {
     admNo = json['admNo'];
     name = json['name'];
@@ -17,6 +20,7 @@ class Student{
     emailId = json['emailId'];
     fatherName = json['fatherName'];
     schoolId = json['schoolId'];
+    myqrplaylist = json['myqrplaylist'];
   }
 }
 Student Studentjson(String str) =>

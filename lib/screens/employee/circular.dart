@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:provider/provider.dart';
+import 'package:sih/helpers/Kaksha.dart';
+
+import '../../providers/AdminProvider.dart';
+import '../../providers/TeacherProvider.dart';
 class UploadCircular extends StatefulWidget {
   const UploadCircular({Key? key}) : super(key: key);
   static const routeName = '/UploadCircular';
@@ -9,11 +14,14 @@ class UploadCircular extends StatefulWidget {
   _UploadCircularState createState() => _UploadCircularState();
 }
 //text also...
+//teacher cannot delete once uploaded
 class _UploadCircularState extends State<UploadCircular> {
-  String selectedKaksha = 'I';
-  List<String> kaksha = ['I', 'II', 'III', 'IV', 'V']; //kaksha id... or name
+  Kaksha? selectedKaksha;
+
   DateTime uploadDate = DateTime.now();
+  String selectedkakshaName = '';
   File? file;
+  List<String> kakshaNames=[];
   var ispicked=false;
   var isuploaded=false;
   _pickFile() async{
@@ -29,6 +37,29 @@ class _UploadCircularState extends State<UploadCircular> {
       print('cannot pick file');
     }
 
+  }
+  List<Kaksha> allkakshaOfSchool=[];
+  setkakshaName(){
+    allkakshaOfSchool.forEach((element) {
+      kakshaNames.add(element.kakshaName);
+    });
+    setState(() {
+      selectedKaksha=allkakshaOfSchool[0];
+       selectedkakshaName =kakshaNames[0];
+    });
+
+  }
+
+  @override
+  void initState() {
+    final loggedInTeacher = Provider.of<TeacherProvider>(context,listen:false).getLoggedInTeacher;
+    // TODO: api call to fetch list of kaksha of this schoolid
+    //assign it to kaksha
+    //assign selectedKaksha to kaksha[0].kakshaName
+    allkakshaOfSchool = Provider.of<AdminProvider>(context,listen: false).viewKaksha;
+    selectedKaksha= allkakshaOfSchool[0];
+    setkakshaName();
+    super.initState();
   }
   @override
   Widget build(BuildContext context) {
@@ -53,11 +84,14 @@ class _UploadCircularState extends State<UploadCircular> {
                 children: [
                   Text('Select Class : '),
                   DropdownButton(items:
-                  kaksha.map((e) {
+                  kakshaNames.map((e) {
                     return DropdownMenuItem(child: Text(e),value: e,);
                   }).toList(), onChanged: (newvalue){
+                        setState(() {
 
-                  },value: selectedKaksha),
+                          selectedkakshaName = newvalue.toString();
+                        });
+                  },value: selectedkakshaName),
 
                 ],
               ),
@@ -90,7 +124,7 @@ class _UploadCircularState extends State<UploadCircular> {
                     ),
                   ),
                   IconButton(onPressed: (){
-                    //all gone ok
+                    //TODO api call for uploading
                     setState(() {
                       ispicked=false;
                       isuploaded=true;
