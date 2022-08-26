@@ -67,6 +67,16 @@ class _CircularState extends State<Circular> {
     Provider.of<FileDownloaderProvider>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          onPressed: (){
+            Navigator.of(context).pop();
+          },
+           icon:const Icon(
+            Icons.arrow_back_ios,
+            color: Colors.black,
+          ),
+        ),
+        centerTitle: true,
         title: const Text('Ciculars',style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),),
         backgroundColor: Colors.white,
       ),
@@ -90,7 +100,6 @@ class _CircularState extends State<Circular> {
                           children: [
                             Container(
                               width: MediaQuery.of(context).size.width * 0.05,
-
                               child: Text(
                                 '1.',
                                 style: TextStyle(

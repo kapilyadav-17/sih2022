@@ -64,7 +64,17 @@ class _StudentHomeworkState extends State<StudentHomework> {
   Widget build(BuildContext context) {
     final loggedInStudentHomework = Provider.of<StudentProvider>(context).homeworksofUser;//to fetch userid,school id
     return Scaffold(
+
       appBar: AppBar(
+        leading: IconButton(
+          onPressed: (){
+            Navigator.of(context).pop();
+          },
+          icon:const Icon(
+            Icons.arrow_back_ios,
+            color: Colors.black,
+          ),
+        ),
         title: const Text('Homework',style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),),
         backgroundColor: Colors.white,
       ),

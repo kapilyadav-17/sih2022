@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sih/services/apiService.dart';
 
 import '../../helpers/Kaksha.dart';
 import '../../providers/AdminProvider.dart';
@@ -35,17 +36,18 @@ class _UploadLearningResourcesState extends State<UploadLearningResources> {
     });
 
   }
-  _pickFile() async{
+  Future<bool> _pickFile() async{
     FilePickerResult? result = await FilePicker.platform.pickFiles();
 
     if (result != null) {
-       file = File(result.files.single.path!);
-       setState(() {
-         ispicked=true;
-       });
+      file = File(result.files.single.path!);
+       // setState(() {
+       //   ispicked=true;
+       return true;
     } else {
       // User canceled the picker
       print('cannot pick file');
+      return false;
     }
   }
 
@@ -64,6 +66,15 @@ class _UploadLearningResourcesState extends State<UploadLearningResources> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          onPressed: (){
+            Navigator.of(context).pop();
+          },
+          icon:const Icon(
+            Icons.arrow_back_ios,
+            color: Colors.black,
+          ),
+        ),
         title: const Text(
           'Upload Study_Material',
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
@@ -82,12 +93,49 @@ class _UploadLearningResourcesState extends State<UploadLearningResources> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Text('Select Class : '),
+          // FutureBuilder(
+          //   builder: (ctx, snapshot) {
+          //     // Checking if future is resolved or not
+          //     if (snapshot.connectionState == ConnectionState.done) {
+          //       // If we got an error
+          //       if (snapshot.hasError) {
+          //         return Center(
+          //           child: Text(
+          //             '${snapshot.error} occurred',
+          //             style: TextStyle(fontSize: 18),
+          //           ),
+          //         );
+          //
+          //         // if we got our data
+          //       } else if (snapshot.hasData) {
+          //         // Extracting data from snapshot object
+          //         final data = snapshot.data as String;
+          //         return Center(
+          //           child: Text(
+          //             '$data',
+          //             style: TextStyle(fontSize: 18),
+          //           ),
+          //         );
+          //       }
+          //     }
+          //
+          //     // Displaying LoadingSpinner to indicate waiting state
+          //     return Center(
+          //       child: CircularProgressIndicator(),
+          //     );
+          //   },
+          //
+          //   // Future that needs to be resolved
+          //   // inorder to display something on the Canvas
+          //   future: ,
+          // ),
+
+
                   DropdownButton(items:
                   kakshaNames.map((e) {
                     return DropdownMenuItem(child: Text(e),value: e,);
                   }).toList(), onChanged: (newvalue){
                     setState(() {
-
                       selectedkakshaName = newvalue.toString();
                     });
                   },value: selectedkakshaName),
@@ -106,11 +154,12 @@ class _UploadLearningResourcesState extends State<UploadLearningResources> {
                   ElevatedButton(
                     onPressed:(){
                       _pickFile();
-                      if(file!=null){
-                        setState(() {
-                          ispicked=true;
-                        });
-                      }
+                      // if(file!=null){
+                      //   setState(() {
+                      //     ispicked=true;
+                      //   });
+                      // }
+
                     } ,
                     child: Text(
                       'Chooose File',
@@ -125,13 +174,13 @@ class _UploadLearningResourcesState extends State<UploadLearningResources> {
                           BorderRadius.circular(30)),
                     ),
                   ),
-                  IconButton(onPressed: (){
-                    //all gone ok
-                    setState(() {
-                      ispicked=false;
-                      isuploaded=true;
-                    });
-                  }, icon: Icon(Icons.file_upload,color: Colors.black45,)),
+                  IconButton(onPressed: () async{
+        //all gone ok
+
+        await ApiService().asyncFileUpload("some", file!,context);
+  }
+
+                  , icon: Icon(Icons.file_upload,color: Colors.black45,)),
 
                 ],
               ),

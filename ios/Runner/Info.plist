@@ -12,6 +12,16 @@
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<key>FUMaximumConnectionsPerHost</key>
+    <integer>3</integer>
+    <key>FUMaximumUploadOperation</key>
+    <integer>3</integer>
+    <key>FUTimeoutInSeconds</key>
+    <integer>3600</integer>
+    <key>FUAllFilesUploadedMessage</key>
+    <string>All files have been uploaded</string>
+	<key>NSCameraUsageDescription</key>
+    <string>Camera permission is required for barcode scanning.</string>
 	<key>CFBundleName</key>
 	<string>sih</string>
 	<key>CFBundlePackageType</key>

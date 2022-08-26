@@ -15,7 +15,8 @@ class StudentProvider with ChangeNotifier{
   late List<Playlist> savedPlaylist= [];
   late List<Student> allstudents= [
     Student(admNo: '234',fatherName: 'Father Name',kakshaId: 'VII-A',name: 'Alice',schoolId: '20395',emailId: 'abc@gmail.com',phoneNumber: '129393'),
-    Student(admNo: '123',fatherName: 'Father Name',kakshaId: 'VII-A',name: 'Charlie',schoolId: '20395',emailId: 'abc@gmail.com',phoneNumber: '129393')
+    Student(admNo: '123',fatherName: 'Father Name',kakshaId: 'VII-A',name: 'Charlie',schoolId: '20395',emailId: 'abc@gmail.com',phoneNumber: '129393'),
+    Student(admNo: '1233',fatherName: 'Father Name',kakshaId: 'VII-A',name: 'Charlie2',schoolId: '20396',emailId: 'abc@gmail.com',phoneNumber: '129393')
   ];
   void initialiseloggedInStudent(Student user){
     this.loggedInStudent = user;
@@ -56,6 +57,21 @@ class StudentProvider with ChangeNotifier{
     savedQrCodes.removeWhere((element) => element.qrId==qrCodeId);
     notifyListeners();
   }
+  // int sharelibraryfunc(String studentAdm){
+  //   allstudents.forEach((element) {
+  //     if(element.admNo==studentAdm){
+  //      if(loggedInStudent.admNo==element.admNo){
+  //        return 0;
+  //      }else{
+  //        return 1;
+  //      }
+  //     }else{
+  //       return 2;
+  //     }
+  //   });
+  // }
+
+
   List<Playlist> get getSavedQrPlaylist => savedPlaylist;
   List<QrCode> get savedQrCodes => savedQr;
   Student get loggedInStudentUser =>loggedInStudent;
@@ -63,5 +79,7 @@ class StudentProvider with ChangeNotifier{
   List<String> get studyMaterialFiles=>studyMaterial;
   List<String> get circularFiles=>circular;
   List<Student> get viewAllStudents=> allstudents;
+
+  //int get sharelibrary=> sharelibraryfunc;
   int get todaysAttendane=>todaysAttendance;
 }
